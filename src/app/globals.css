@@ -24,3 +24,34 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@theme {
+  --color-background: #050505;
+  --color-foreground: #fafafa;
+  --color-card-glass: rgba(255, 255, 255, 0.03);
+  --color-border-glass: rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbar for Portfolio Quality */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: var(--color-card-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-glass);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
