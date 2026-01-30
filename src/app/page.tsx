@@ -1,16 +1,31 @@
-export default function Home() {
+import { createClient } from "@/utils/supabase/client";
+import ProductCard from "@/components/ProductCard";
+
+export default async function Home() {
+  const supabase = createClient();
+  const { data: products } = await supabase.from("products").select("*");
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <div className="glass p-12 rounded-3xl max-w-md text-center">
-        <h1 className="text-4xl font-bold tracking-tighter mb-4">
-          The Future of Commerce
+    <div className="mx-auto max-w-7xl px-6 py-20">
+      <header className="mb-12 text-center">
+        <h1 className="text-5xl font-bold tracking-tight text-white">
+          Storefront
         </h1>
-        <p className="text-muted-foreground mb-6">
-          Next.js 15 + Tailwind v4 + Supabase.
+        <p className="mt-4 text-white/40">
+          Curated essentials for the modern setup.
         </p>
-        <button className="px-6 py-3 bg-white text-black rounded-full font-medium hover:scale-105 transition-transform">
-          Browse Products
-        </button>
+      </header>
+
+      {/* The Responsive Grid */}
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {products?.map((product) => (
+          <ProductCard
+            key={product.id}
+            name={product.name}
+            price={product.price}
+            image={product.image_url}
+          />
+        ))}
       </div>
     </div>
   );
