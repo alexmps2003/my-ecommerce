@@ -15,7 +15,7 @@ export default function Navbar() {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-white/10 px-6 py-4 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-black/60 px-6 py-4 backdrop-blur-xl">
       <Link href="/" className="text-xl font-bold text-white">
         Storefront
       </Link>

@@ -49,7 +49,7 @@ export default function ProductCard({ id, name, price, image }: ProductProps) {
       {/* Glassy Button */}
       <button
         onClick={handleAddToCart}
-        className="mt-4 w-full rounded-xl bg-white/10 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black"
+        className="mt-4 w-full rounded-xl bg-white/10 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black cursor-pointer"
       >
         Add to Cart
       </button>
