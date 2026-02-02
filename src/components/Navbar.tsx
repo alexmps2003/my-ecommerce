@@ -21,7 +21,7 @@ export default function Navbar() {
       </Link>
 
       <div className="relative">
-        <button className="rounded-full p-2 text-white hover:bg-white/10 transition-colors">
+        <button className="rounded-full p-2 text-white hover:bg-white/10 transition-colors cursor-pointer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import { useCartStore } from "@/store/cartStore";
+import { useState } from "react";
+import ProductModal from "./ProductModal";
 
 interface ProductProps {
   id: number;
@@ -10,21 +11,7 @@ interface ProductProps {
 }
 
 export default function ProductCard({ id, name, price, image }: ProductProps) {
-  const addItem = useCartStore((state) => state.addItem);
-
-  const handleAddToCart = () => {
-    console.log("Button clicked! Adding:", name);
-    // Log the actual addItem function to make sure it's not undefined
-    console.log("2. Is addItem defined?", typeof addItem);
-
-    addItem({
-      id,
-      name,
-      price,
-      image,
-    });
-    console.log("3. addItem function was called");
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <motion.div
@@ -48,11 +35,17 @@ export default function ProductCard({ id, name, price, image }: ProductProps) {
 
       {/* Glassy Button */}
       <button
-        onClick={handleAddToCart}
+        onClick={() => setIsModalOpen(true)}
         className="mt-4 w-full rounded-xl bg-white/10 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black cursor-pointer"
       >
         Add to Cart
       </button>
+
+      <ProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        product={{ id, name, price, image }}
+      />
     </motion.div>
   );
 }

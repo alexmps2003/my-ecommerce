@@ -7,11 +7,13 @@ export interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  size?: string;
+  color?: string;
 }
 
 interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -20,23 +22,30 @@ export const useCartStore = create<CartStore>()(
       items: [],
 
       addItem: (item) => {
-        console.log("Store received item:", item);
+        const quantityToAdd = item.quantity || 1;
+
         set((state) => {
-          console.log("Store: current items in cart:", state.items.length);
-          const existingItem = state.items.find((i) => i.id === item.id);
+          const existingItem = state.items.find(
+            (i) =>
+              i.id === item.id &&
+              i.size === item.size &&
+              i.color === item.color,
+          );
 
           if (existingItem) {
-            console.log("Store: Found duplicate, increasing quantity");
             return {
               items: state.items.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+                i.id === item.id &&
+                i.size === item.size &&
+                i.color === item.color
+                  ? { ...i, quantity: i.quantity + quantityToAdd }
+                  : i,
               ),
             };
           }
-          console.log("Store: Adding new item to array");
 
           return {
-            items: [...state.items, { ...item, quantity: 1 }],
+            items: [...state.items, { ...item, quantity: quantityToAdd }],
           };
         });
       },
