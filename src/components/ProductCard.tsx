@@ -1,13 +1,31 @@
 "use client";
 import { motion } from "framer-motion";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductProps {
+  id: number;
   name: string;
   price: number;
   image: string;
 }
 
-export default function ProductCard({ name, price, image }: ProductProps) {
+export default function ProductCard({ id, name, price, image }: ProductProps) {
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = () => {
+    console.log("Button clicked! Adding:", name);
+    // Log the actual addItem function to make sure it's not undefined
+    console.log("2. Is addItem defined?", typeof addItem);
+
+    addItem({
+      id,
+      name,
+      price,
+      image,
+    });
+    console.log("3. addItem function was called");
+  };
+
   return (
     <motion.div
       whileHover={{ y: -10, scale: 1.02 }}
@@ -29,7 +47,10 @@ export default function ProductCard({ name, price, image }: ProductProps) {
       </div>
 
       {/* Glassy Button */}
-      <button className="mt-4 w-full rounded-xl bg-white/10 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black">
+      <button
+        onClick={handleAddToCart}
+        className="mt-4 w-full rounded-xl bg-white/10 py-3 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black"
+      >
         Add to Cart
       </button>
     </motion.div>
