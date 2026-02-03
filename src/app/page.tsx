@@ -24,7 +24,7 @@ export default async function Home() {
             id={product.id}
             name={product.name}
             price={product.price}
-            image={product.image_url}
+            image={product.image}
           />
         ))}
       </div>
