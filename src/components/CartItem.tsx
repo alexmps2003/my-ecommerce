@@ -21,7 +21,7 @@ export default function CartItem({ item }: { item: any }) {
           </button>
         </div>
         <p className="text-orange-500 font-bold">
-          Rs. {(item.products.price / 100).toLocaleString()}
+          ${(item.products.price / 100).toLocaleString()}
         </p>
 
         <div className="flex justify-end mt-2">
