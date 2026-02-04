@@ -4,12 +4,43 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
+import { updateProduct } from "@/app/actions/products";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  image: string;
+}
 
 export default function AdminPage() {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(true); // Loading state for auth check
   const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // Inside your Admin component
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  // A helper to clear the form back to "Add Mode"
+  const resetForm = () => setSelectedProduct(null);
+
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      await updateProduct(formData);
+      setEditingProduct(null); // Close edit mode on success
+      alert("Product updated successfully!");
+    } catch (err) {
+      alert("Failed to update product.");
+    }
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -65,6 +96,21 @@ export default function AdminPage() {
 
     checkUser();
   }, [router, supabase]);
+
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (data) setProducts(data);
+    };
+
+    if (isAuthorized) {
+      fetchProducts();
+    }
+  }, [isAuthorized, supabase]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -127,8 +173,6 @@ export default function AdminPage() {
         </header>
 
         <div className="glass rounded-3xl p-8">
-          <h2 className="mb-6 text-xl font-semibold">Add New Product</h2>
-
           {message && (
             <div
               className={`mb-6 rounded-xl border p-4 text-center text-sm ${
@@ -141,78 +185,108 @@ export default function AdminPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/60">
-                  Name
-                </label>
-                <input
-                  name="name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-blue-500 transition-colors"
-                  placeholder="Product Name"
-                />
-              </div>
+          <form
+            key={selectedProduct?.id || "new"}
+            action={updateProduct}
+            className="space-y-4 bg-white/5 p-6 rounded-2xl border border-white/10"
+          >
+            <h2 className="text-xl font-semibold">
+              {selectedProduct ? "Edit Product" : "Add New Product"}
+            </h2>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/60">
-                  Price ($)
-                </label>
-                <input
-                  name="price"
-                  type="number"
-                  step="0.01"
-                  required
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-blue-500 transition-colors"
-                  placeholder="0.00"
-                />
-              </div>
+            {/* IMPORTANT: Hidden ID field for the database query */}
+            {selectedProduct && (
+              <input type="hidden" name="id" value={selectedProduct.id} />
+            )}
+
+            <div>
+              <label className="block text-sm text-white/50 mb-1">
+                Product Name
+              </label>
+              <input
+                name="name"
+                defaultValue={selectedProduct?.name || ""}
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3"
+                required
+              />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/60">
+            <div>
+              <label className="block text-sm text-white/50 mb-1">
+                Price (in cents)
+              </label>
+              <input
+                name="price"
+                type="number"
+                defaultValue={selectedProduct?.price || ""}
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-white/50 mb-1">
                 Image URL
               </label>
               <input
-                name="imageUrl"
-                type="url"
+                name="image"
+                defaultValue={selectedProduct?.image || ""}
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3"
                 required
-                value={formData.imageUrl}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-blue-500 transition-colors"
-                placeholder="https://..."
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/60">
-                Description
-              </label>
-              <textarea
-                name="description"
-                rows={4}
-                required
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-blue-500 transition-colors"
-                placeholder="Product details..."
-              />
-            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-white/90 transition"
+              >
+                {selectedProduct ? "Update Product" : "Save Product"}
+              </button>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full rounded-xl bg-white py-4 font-bold text-black transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-            >
-              {submitting ? "Saving..." : "Add Product"}
-            </button>
+              {selectedProduct && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-6 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
+        </div>
+
+        <div className="mt-12 space-y-4">
+          <h3 className="text-lg font-medium text-white/50">
+            Current Inventory
+          </h3>
+          {products?.map((product) => (
+            <div
+              key={product.id}
+              className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10"
+            >
+              <div className="flex items-center gap-4">
+                <img
+                  src={product.image}
+                  className="w-12 h-12 rounded-lg object-cover"
+                />
+                <div>
+                  <p className="font-medium">{product.name}</p>
+                  <p className="text-sm text-white/40">
+                    ${(product.price / 100).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedProduct(product)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition"
+              >
+                Edit
+              </button>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>
