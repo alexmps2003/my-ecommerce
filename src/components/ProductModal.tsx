@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { addToCart } from "@/app/actions/cart";
+import { useToast } from "@/components/Toast";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -23,16 +24,17 @@ export default function ProductModal({
 }: ProductModalProps) {
   const addItem = useCartStore((state) => state.addItem);
   const [quantity, setQuantity] = useState(1);
+  const { showToast } = useToast();
 
   if (!isOpen || !product) return null;
 
   const handleConfirm = async () => {
     try {
       await addToCart(String(product.id), quantity); // This sends data to Supabase
-      alert("Added to cart!");
+      showToast("Added to cart!", "success");
       onClose();
     } catch (err) {
-      alert("Failed to add to cart. Make sure you are logged in.");
+      showToast("Failed to add to cart. Make sure you are logged in.", "error");
     }
   };
 

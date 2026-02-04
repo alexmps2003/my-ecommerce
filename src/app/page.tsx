@@ -1,5 +1,8 @@
+export const revalidate = 0;
+
 import { createClient } from "@/utils/supabase/server";
 import ProductCard from "@/components/ProductCard";
+
 
 export default async function Home() {
   const supabase = await createClient();
