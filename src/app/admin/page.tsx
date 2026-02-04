@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
 import { updateProduct, deleteProduct } from "@/app/actions/products";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useToast } from "@/components/Toast";
 
 interface Product {
   id: string;
@@ -17,6 +19,7 @@ interface Product {
 export default function AdminPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true); // Loading state for auth check
   const [isAuthorized, setIsAuthorized] = useState(false);
 
@@ -26,8 +29,22 @@ export default function AdminPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
 
+  // Delete modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
   // A helper to clear the form back to "Add Mode"
   const resetForm = () => setSelectedProduct(null);
+
+  // Delete button handler
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
 
   const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,9 +53,9 @@ export default function AdminPage() {
     try {
       await updateProduct(formData);
       setEditingProduct(null); // Close edit mode on success
-      alert("Product updated successfully!");
+      showToast("Product updated successfully!", "success");
     } catch (err) {
-      alert("Failed to update product.");
+      showToast("Failed to update product.", "error");
     }
   };
 
@@ -284,20 +301,7 @@ export default function AdminPage() {
 
                 {/* Professional Delete Button with Safety Check */}
                 <button
-                  onClick={async () => {
-                    if (
-                      confirm(
-                        `Are you sure you want to delete ${product.name}?`,
-                      )
-                    ) {
-                      try {
-                        await deleteProduct(product.id);
-                        alert("Product deleted.");
-                      } catch (err) {
-                        alert("Could not delete product.");
-                      }
-                    }
-                  }}
+                  onClick={() => handleDeleteClick(product)}
                   className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-sm transition"
                 >
                   Delete
@@ -307,6 +311,19 @@ export default function AdminPage() {
           ))}
         </div>
       </motion.div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title={productToDelete?.name || ""}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          if (productToDelete) {
+            startTransition(() => deleteProduct(productToDelete.id));
+            setIsDeleteModalOpen(false);
+          }
+        }}
+      />
     </div>
   );
 }
