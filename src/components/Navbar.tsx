@@ -94,7 +94,7 @@ export default function Navbar() {
       </Link>
 
       <div className="flex items-center gap-6">
-        <div className="relative">
+        <Link href="/cart" className="relative">
           <button className="rounded-full p-2 text-white hover:bg-white/10 transition-colors cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +116,7 @@ export default function Navbar() {
               {totalItems}
             </span>
           )}
-        </div>
+        </Link>
 
         {/* User Auth Section */}
         {mounted && (

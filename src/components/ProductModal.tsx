@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { addToCart } from "@/app/actions/cart";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -25,17 +26,14 @@ export default function ProductModal({
 
   if (!isOpen || !product) return null;
 
-  const handleConfirm = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity,
-    });
-    // Reset state for next time
-    setQuantity(1);
-    onClose();
+  const handleConfirm = async () => {
+    try {
+      await addToCart(String(product.id), quantity); // This sends data to Supabase
+      alert("Added to cart!");
+      onClose();
+    } catch (err) {
+      alert("Failed to add to cart. Make sure you are logged in.");
+    }
   };
 
   return (
