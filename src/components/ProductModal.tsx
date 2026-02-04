@@ -67,7 +67,7 @@ export default function ProductModal({
           >
             <div className="p-6">
               <div className="flex gap-4">
-                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-800">
+                <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-zinc-800">
                   <img
                     src={product.image}
                     alt={product.name}

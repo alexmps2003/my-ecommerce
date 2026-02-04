@@ -1,8 +1,8 @@
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import ProductCard from "@/components/ProductCard";
 
 export default async function Home() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: products } = await supabase.from("products").select("*");
 
   return (
