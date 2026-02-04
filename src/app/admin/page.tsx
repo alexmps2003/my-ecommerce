@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
-import { updateProduct } from "@/app/actions/products";
+import { updateProduct, deleteProduct } from "@/app/actions/products";
 
 interface Product {
   id: string;
@@ -271,20 +271,38 @@ export default function AdminPage() {
                   src={product.image}
                   className="w-12 h-12 rounded-lg object-cover"
                 />
-                <div>
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-sm text-white/40">
-                    ${(product.price / 100).toFixed(2)}
-                  </p>
-                </div>
+                <p className="font-medium">{product.name}</p>
               </div>
 
-              <button
-                onClick={() => setSelectedProduct(product)}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition"
-              >
-                Edit
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedProduct(product)}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition"
+                >
+                  Edit
+                </button>
+
+                {/* Professional Delete Button with Safety Check */}
+                <button
+                  onClick={async () => {
+                    if (
+                      confirm(
+                        `Are you sure you want to delete ${product.name}?`,
+                      )
+                    ) {
+                      try {
+                        await deleteProduct(product.id);
+                        alert("Product deleted.");
+                      } catch (err) {
+                        alert("Could not delete product.");
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-sm transition"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

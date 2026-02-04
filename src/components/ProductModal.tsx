@@ -22,11 +22,6 @@ export default function ProductModal({
 }: ProductModalProps) {
   const addItem = useCartStore((state) => state.addItem);
   const [quantity, setQuantity] = useState(1);
-  const [size, setSize] = useState("M");
-  const [color, setColor] = useState("Black");
-
-  const sizes = ["S", "M", "L"];
-  const colors = ["Black", "Silver"];
 
   if (!isOpen || !product) return null;
 
@@ -37,13 +32,9 @@ export default function ProductModal({
       price: product.price,
       image: product.image,
       quantity,
-      size,
-      color,
     });
     // Reset state for next time
     setQuantity(1);
-    setSize("M");
-    setColor("Black");
     onClose();
   };
 
@@ -85,50 +76,6 @@ export default function ProductModal({
               </div>
 
               <div className="mt-6 space-y-4">
-                {/* Size Selection */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-white/60">
-                    Size
-                  </label>
-                  <div className="flex gap-2">
-                    {sizes.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSize(s)}
-                        className={`h-10 w-10 rounded-lg border text-sm font-medium transition-colors ${
-                          size === s
-                            ? "border-blue-500 bg-blue-500 text-white"
-                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Color Selection */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-white/60">
-                    Color
-                  </label>
-                  <div className="flex gap-2">
-                    {colors.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setColor(c)}
-                        className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                          color === c
-                            ? "border-blue-500 bg-blue-500 text-white"
-                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
-                        }`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Quantity */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-white/60">
