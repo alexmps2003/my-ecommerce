@@ -28,7 +28,7 @@ export default async function CartPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-md border-t border-white/10 p-4">
         <div className="max-w-2xl mx-auto flex justify-between items-center">
           <div className="text-right">
-            <p className="text-sm text-white/50">Total: <span className="text-white text-lg font-bold">Rs. {(subtotal / 100).toLocaleString()}</span></p>
+            <p className="text-sm text-white/50">Total: <span className="text-white text-lg font-bold">${(subtotal / 100).toLocaleString()}</span></p>
           </div>
           <button className="bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-orange-700 transition">
             Check Out ({cartItems?.length || 0})
