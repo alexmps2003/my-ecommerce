@@ -1,33 +1,66 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import UserNav from "./UserNav";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 
-export default async function Navbar() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function Navbar() {
+  const [user, setUser] = useState<User | null>(null);
+  const [cartCount, setCartCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const supabase = createClient();
 
-  // 1. Fetch the exact count from Supabase
-  let cartCount = 0;
-  let isAdmin = false;
+  useEffect(() => {
+    setMounted(true);
 
-  if (user) {
-    // Fetch Cart Count
-    const { count } = await supabase
-      .from("cart_items")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    cartCount = count ?? 0;
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
 
-    // Fetch Admin Status
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    isAdmin = profile?.role === "admin";
-  }
+    fetchUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      if (user) {
+        // Fetch Cart Count
+        const { count } = await supabase
+          .from("cart_items")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        setCartCount(count ?? 0);
+
+        // Fetch Admin Status
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        setIsAdmin(profile?.role === "admin");
+      } else {
+        setCartCount(0);
+        setIsAdmin(false);
+      }
+    };
+
+    fetchCount();
+  }, [user, supabase]);
 
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-black/60 px-6 py-4 backdrop-blur-xl">
@@ -53,7 +86,7 @@ export default async function Navbar() {
           </svg>
 
           {/* Real-time Count Badge */}
-          {cartCount > 0 && (
+          {mounted && cartCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white animate-in zoom-in">
               {cartCount}
             </span>
@@ -61,7 +94,7 @@ export default async function Navbar() {
         </Link>
 
         {/* Pass data to the Client Component */}
-        <UserNav initialUser={user} isAdmin={isAdmin} />
+        {mounted && <UserNav initialUser={user} isAdmin={isAdmin} />}
       </div>
     </nav>
   );
